@@ -4,6 +4,7 @@ import re
 from ipaddress import IPv4Address, AddressValueError
 
 
+IPV4: re.Pattern[str] = re.compile(r"\d{1,3}(\.\d{1,3}){3}")
 EMAIL: re.Pattern[str] = re.compile(r"[\w.+-]+@[\w-]+\.[\w.]+")
 URL: re.Pattern[str] = re.compile(r"https?://\S+")
 
@@ -11,15 +12,20 @@ URL: re.Pattern[str] = re.compile(r"https?://\S+")
 def is_valid_ipv4(text: str) -> bool:
     """True if text is an IPv4 address with every part between 0 and 255.
 
+    The regex checks the shape (four dot-separated numbers), then 
+    `ipaddress` checks the value.
+
     Example:
         >>> is_valid_ipv4("192.168.1.10"), is_valid_ipv4("999.1.1.1"), is_valid_ipv4("abc")
         (True, False, False)
     """
+    if IPV4.fullmatch(text) is None:
+        return False
     try:
         IPv4Address(text)
-        return True
     except AddressValueError:
         return False
+    return True
 
 
 def is_valid_email(text: str) -> bool:
