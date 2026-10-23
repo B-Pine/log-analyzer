@@ -1,0 +1,42 @@
+"""Validation patterns for IP addresses, emails and URLs."""
+
+import re
+from ipaddress import IPv4Address, AddressValueError
+
+
+EMAIL: re.Pattern[str] = re.compile(r"[\w.+-]+@[\w-]+\.[\w.]+")
+URL: re.Pattern[str] = re.compile(r"https?://\S+")
+
+
+def is_valid_ipv4(text: str) -> bool:
+    """True if text is an IPv4 address with every part between 0 and 255.
+
+    Example:
+        >>> is_valid_ipv4("192.168.1.10"), is_valid_ipv4("999.1.1.1"), is_valid_ipv4("abc")
+        (True, False, False)
+    """
+    try:
+        IPv4Address(text)
+        return True
+    except AddressValueError:
+        return False
+
+
+def is_valid_email(text: str) -> bool:
+    """True if text looks like an email address.
+
+    Example:
+        >>> is_valid_email("aline@example.com"), is_valid_email("aline@")
+        (True, False)
+    """
+    return EMAIL.fullmatch(text) is not None
+
+
+def is_valid_url(text: str) -> bool:
+    """True if text is an http or https URL.
+
+    Example:
+        >>> is_valid_url("https://example.com/home"), is_valid_url("example.com")
+        (True, False)
+    """
+    return URL.fullmatch(text) is not None
