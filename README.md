@@ -174,7 +174,7 @@ Each stage is lazy: no line is read until the final step asks for a result, and 
 
 ## Generator vs. list performance
 
-Generated with `python scripts/compare_memory.py` on a 200,000-line (9.3 MB) log, Python 3.12 on Linux. Numbers vary by machine.
+Generated with `python scripts/compare_memory.py` on a 200,000-line (9.3 MB) log, Python 3.12 on Windows. Numbers vary by machine.
 
 ### Reading every line
 
