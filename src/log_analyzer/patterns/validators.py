@@ -1,6 +1,7 @@
 """Validation patterns for IP addresses, emails and URLs."""
 
 import re
+from functools import lru_cache
 from ipaddress import IPv4Address, AddressValueError
 
 
@@ -9,6 +10,7 @@ EMAIL: re.Pattern[str] = re.compile(r"[\w.+-]+@[\w-]+\.[\w.]+")
 URL: re.Pattern[str] = re.compile(r"https?://\S+")
 
 
+@lru_cache(maxsize=1024)
 def is_valid_ipv4(text: str) -> bool:
     """True if text is an IPv4 address with every part between 0 and 255.
 

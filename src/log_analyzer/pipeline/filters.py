@@ -8,6 +8,7 @@ function that filter() can use directly.
 from collections.abc import Callable, Container, Iterable, Iterator
 from datetime import datetime
 from functools import partial
+from itertools import takewhile, dropwhile
 
 from ..models import LogEntry
 
@@ -64,3 +65,31 @@ def select(entries: Iterable[LogEntry], *predicates: Predicate) -> Iterator[LogE
     """
     return filter(lambda entry: all(check(entry) for check in predicates), entries)
 
+
+def until(end: datetime, entries: Iterable[LogEntry]) -> Iterator[LogEntry]:
+    """Entries before end, stopping at the first one that isn't.
+
+    Unlike filter(), takewhile() stops reading as soon as the condition
+    fails, so the rest of the file is never touched. Only correct when
+    entries are in time order, as log files are.
+    """
+    return takewhile(lambda entry: entry.timestamp < end, entries)
+
+
+def between(start: datetime, end: datetime, entries: Iterable[LogEntry]) -> Iterator[LogEntry]:
+    """Entries with start <= timestamp < end, for entries in time order.
+
+    dropwhile() skips everything before start, then takewhile() stops at end.
+
+    Example:
+        >>> from log_analyzer.pipeline.transforms import parse_lines
+        >>> lines = [
+        ...     "2026-10-20 07:59:00 192.168.1.10 GET /home 200",
+        ...     "2026-10-20 08:30:00 192.168.1.11 GET /cart 200",
+        ...     "2026-10-20 09:00:00 192.168.1.12 GET /login 200",
+        ... ]
+        >>> start, end = datetime(2026, 10, 20, 8), datetime(2026, 10, 20, 9)
+        >>> [e.path for e in between(start, end, parse_lines(lines))]
+        ['/cart']
+    """
+    return until(end, dropwhile(lambda entry: entry.timestamp < start, entries))

@@ -10,7 +10,7 @@ import random
 from datetime import datetime, timedelta
 from pathlib import Path
 
-START = datetime(2026, 10, 20)
+# START = datetime(2026, 10, 20)
 DURATION = timedelta(days=2)
 
 METHODS = {"GET": 80, "POST": 15, "PUT": 3, "DELETE": 2}
@@ -26,7 +26,7 @@ MALFORMED = [
 ]
 
 
-def generate(line_count: int, rng: random.Random) -> list[str]:
+def generate(line_count: int, start: datetime, rng: random.Random) -> list[str]:
     """Create line_count valid lines in time order, plus about 1% malformed."""
     ips = [f"192.168.1.{n}" for n in range(10, 40)]
     ip_weights = [1 / (rank + 1) for rank in range(len(ips))]   # a few IPs dominate
@@ -34,7 +34,7 @@ def generate(line_count: int, rng: random.Random) -> list[str]:
     seconds = sorted(rng.uniform(0, DURATION.total_seconds()) for _ in range(line_count))
     lines = []
     for offset in seconds:
-        timestamp = (START + timedelta(seconds=offset)).strftime("%Y-%m-%d %H:%M:%S")
+        timestamp = (start + timedelta(seconds=offset)).strftime("%Y-%m-%d %H:%M:%S")
         ip = rng.choices(ips, weights=ip_weights)[0]
         method = rng.choices(list(METHODS), weights=list(METHODS.values()))[0]
         status = rng.choices(list(STATUSES), weights=list(STATUSES.values()))[0]
@@ -50,10 +50,12 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Generate a sample access log.")
     parser.add_argument("--lines", type=int, default=1500, help="valid lines (default: 1500)")
     parser.add_argument("-o", "--output", type=Path, default=Path("data/access.log"))
+    parser.add_argument("--start", type=datetime.fromisoformat, default=datetime(2026, 10, 20),
+                    help="first day, e.g. 2026-10-22 (default: 2026-10-20)")
     parser.add_argument("--seed", type=int, default=42, help="random seed (default: 42)")
     args = parser.parse_args()
 
-    lines = generate(args.lines, random.Random(args.seed))
+    lines = generate(args.lines, args.start, random.Random(args.seed))
     args.output.parent.mkdir(parents=True, exist_ok=True)
     with args.output.open("w", encoding="utf-8", newline="\n") as file:
         file.writelines(line + "\n" for line in lines)
