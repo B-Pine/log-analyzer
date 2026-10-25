@@ -5,7 +5,7 @@ from functools import lru_cache
 from ipaddress import IPv4Address, AddressValueError
 
 
-IPV4: re.Pattern[str] = re.compile(r"\d{1,3}(\.\d{1,3}){3}")
+IPV4: re.Pattern[str] = re.compile(r"\d{1,3}(?:\.\d{1,3}){3}")
 EMAIL: re.Pattern[str] = re.compile(r"[\w.+-]+@[\w-]+\.[\w.]+")
 URL: re.Pattern[str] = re.compile(r"https?://\S+")
 
