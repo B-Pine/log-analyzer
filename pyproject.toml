@@ -9,6 +9,9 @@ description = "Parse web server access logs with regex and generate analytics re
 requires-python = ">=3.11"
 dependencies = []
 
+[project.scripts]
+log-analyzer = "log_analyzer.cli:main"
+
 [tool.setuptools.packages.find]
 where = ["src"]
 
