@@ -5,3 +5,4 @@ build/
 .pytest_cache/
 .mypy_cache/
 reports/
+log_analyzer.egg-info/
